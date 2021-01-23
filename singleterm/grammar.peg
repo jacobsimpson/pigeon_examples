@@ -1,0 +1,12 @@
+{
+	package main
+}
+
+// These are all equivalent: =, <-, ← (U+2190), ⟵ (U+27F5)
+program   = '-'?[1-9][0-9]* _ EOF {
+    return strings.TrimSpace(string(c.text)), nil
+}
+
+_ "whitespace" <- [ \n\t\r]*
+
+EOF = !.
