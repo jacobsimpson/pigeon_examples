@@ -2,6 +2,8 @@
 
 Small project explorations of the Pigeon PEG parser generator.
 
+Each subdirectory explores targeted aspect of using pigeon.
+
 ### Setup
 
 [Pigeon](https://github.com/mna/pigeon) is a parser generator. It is used as a
