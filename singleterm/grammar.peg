@@ -4,9 +4,16 @@
 
 // These are all equivalent: =, <-, ← (U+2190), ⟵ (U+27F5)
 program   = '-'?[1-9][0-9]* _ EOF {
+    // Without this action, the representation of this data in the resulting
+    // AST would be in the form of array of array of uint8. This single line
+    // changes the result of matching this rule to a single string.
     return strings.TrimSpace(string(c.text)), nil
 }
 
+// The whitespace rule is used to capture whitespace. Most grammars that I
+// build are not whitespace sensitive, so the results of matching this will
+// normally be discarded somehow.
 _ "whitespace" <- [ \n\t\r]*
 
+// An EOF character is anything that is not a character.
 EOF = !.
