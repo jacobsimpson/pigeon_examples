@@ -2,7 +2,10 @@
 	package main
 }
 
-// These are all equivalent: =, <-, ← (U+2190), ⟵ (U+27F5)
+// When defining pigeon rules, these are all equivalent: =, <-, ← (U+2190), ⟵ (U+27F5)
+
+// If a rule doesn't include EOF, it can match against the prefix of the input,
+// and leave extra input dangling, unconsumed.
 program   = '-'?[1-9][0-9]* _ EOF {
     // Without this action, the representation of this data in the resulting
     // AST would be in the form of array of array of bytes. This single line
@@ -12,8 +15,11 @@ program   = '-'?[1-9][0-9]* _ EOF {
 
 // The whitespace rule is used to capture whitespace. Most grammars that I
 // build are not whitespace sensitive, so the results of matching this will
-// normally be discarded somehow.
+// normally be discarded somehow. There doesn't seem to be a way to easily
+// discard whitespace in pigeon, so it has to be embedded and ignored in each
+// rule where it could legally occur.
 _ "whitespace" <- [ \n\t\r]*
 
-// An EOF character is anything that is not a character.
+// An EOF character is anything that is not a character. Use this to ensure all
+// input is consumed by a rule, and it doesn't just match the prefix.
 EOF = !.
