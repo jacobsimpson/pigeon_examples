@@ -1,0 +1,62 @@
+{
+package main
+
+type Program struct {
+    Comments []*Comment
+}
+
+type Comment struct {
+    Content string
+}
+
+// A common desire is to extract a string from labeled expression.
+// https://pkg.go.dev/github.com/PuerkitoBio/pigeon#hdr-Labeled_expression
+// There a specific rules that describe how a matching expression will be
+// turned into a sequence of nested []interface{}. In practice, I don't care, I
+// just want a simple byte sequence that can be mapped to a string. This method
+// will flatten arbitrarily deeply nested []interface{} containing various
+// lengths of byte sequences into a simple []byte.
+func flatten(v interface{}) []byte {
+    result := []byte{}
+    for _, i := range v.([]interface{}) {
+        switch t := i.(type) {
+        case []byte:
+            result = append(result, t...)
+        case []interface{}:
+            result = append(result, flatten(i)...)
+        }
+    }
+    return result
+}
+}
+
+program = prog:(other_stuff / eol_comment)* {
+    p := &Program{}
+    for _, i := range prog.([]interface{}) {
+        switch c := i.(type) {
+        case *Comment:
+            p.Comments = append(p.Comments, c)
+        }
+    }
+    return p, nil
+}
+
+other_stuff = [^#]+
+
+// Uses a look ahead predicate to match everything until the end of the line,
+// and then the end of line.
+//   (!EOL .)
+//       !EOL => Look ahead and make sure that EOL doesn't match what is coming.
+//       .    => As long as the predicate is satisfied, match any character.
+eol_comment = content:('#' (!EOL .)*) EOL {
+    return &Comment{string(flatten(content))}, nil
+}
+
+// Windows             - Lines end with both a <CR> followed by a <LF> character
+// Linux               - Lines end with only a <LF> character
+// Macintosh (Mac OSX) - Lines end with only a <LF> character
+// Macintosh (old)     - Lines end with only a <CR> character
+// The line might be the last line in the file, so EOF is a valid EOL too.
+EOL = [\n\r] / "\r\n" / EOF
+
+EOF = !.

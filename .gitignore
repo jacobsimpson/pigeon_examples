@@ -1,3 +1,7 @@
+# Build generated files.
+coverage.out
+prompt
+
+# Editor swap files.
 .sw?
 .*.sw?
-prompt
