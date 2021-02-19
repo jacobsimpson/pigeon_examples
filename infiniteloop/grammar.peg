@@ -1,0 +1,22 @@
+{
+package main
+}
+
+// There are three elements to this failure.
+// 1. In the `complete_text` rule, it matches multiple instances (*).
+// 2. The `other_stuff` rule matches a 0 length string.
+// 3. The `other_stuff` rule is first out of the multiple options available in
+// the `complete_text` rule.
+//
+// The consequence is `other_stuff` will always match, it will consume no
+// input, it will match first, and it will match an infinite number of times.
+complete_text = (other_stuff / some_string)*
+
+// ERROR! Don't do this.
+//
+// The expression below will successfully match a 0 length string from the
+// input. So it will consume nothing from the input. Since it is the left most
+// option in the rule above, it will always match, and consume nothing.
+other_stuff = .*
+
+some_string = 'a'
